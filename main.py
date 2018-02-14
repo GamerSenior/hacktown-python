@@ -32,14 +32,6 @@ def close(stdscr):
     curses.echo()
     curses.endwin()
 
-def history():
-    with open('history.txt', r) as text:
-        for line in text:
-            line.strip(begin)
-
-        for line in text:
-            line.strip('END')
-
 def start_screen(stdscr):
     """Menu inicial do programa"""
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
