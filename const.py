@@ -1,0 +1,4 @@
+RESET = '\33[0m'
+VERMELHO = '\33[31m'
+VERDE = '\33[33m'
+AZUL = '\33[34m'
