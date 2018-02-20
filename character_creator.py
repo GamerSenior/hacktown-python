@@ -81,6 +81,33 @@ def editCharacter(char):
     print(RESET)
     return char
 
+def editItem(item):
+    print(VERMELHO + 'Caso não deseje alterar os valores, deixar em branco' + RESET)
+    val = input((RESET + 'Nome: {} -> ' + AZUL).format(item.nome))
+    if val.strip():
+        item.nome = val
+
+    val = input((RESET + 'Equipavel: {} -> '+ AZUL).format(item.descricao))
+    if val.strip():
+        item.descricao = val
+
+    val = getSimNao((RESET + 'Equipavel: {} -> ' + AZUL).format(item.equipavel))
+
+    val = input((RESET + 'Ataque: {} -> ' + AZUL).format(item.ataque))
+    if val.strip():
+        item.ataque = int(val)
+
+    val = input((RESET + 'Defesa: {} -> ' + AZUL).format(item.defesa))
+    if val.strip():
+        item.defesa = int(val)
+
+    val = input((RESET + 'Valor : {} -> ' + AZUL).format(item.valor))
+    if val.strip():
+        item.valor = int(val)
+
+    print(RESET)
+    return item
+
 def createDroplist(char):
     while True:
         droplist = Droplist()
@@ -89,7 +116,11 @@ def createDroplist(char):
             item = session.query(Item).filter_by(id = item_id).first()
             droplist.item = item
             droplist.character = char
-            droplist.dropchance = getValor('Chance de drop (1~100)')
+            while True:
+                val = getValor('Chance de drop (1~100)')
+                if val > 1 and val < 100:
+                    break
+            droplist.dropchance = val
             char.droplist.append(droplist)
         except Exception as e:
             print('Erro inesperado:\n'+ VERMELHO + e + RESET)
@@ -250,25 +281,52 @@ if session != None:
                 print('1. Personagem')
                 print('2. Item')
                 print('0. Voltar')
+                c = getValor(VERMELHO + '\n\nOpção'+ RESET)
 
-                char_id = input('ID do Personagem: ')
-                char = session.query(Character).filter_by(id = char_id).first()
-                if(char):
-                    char = editCharacter(char)
-                    session.add(char)
+                if c == 1:
                     cls()
-                    print(char)
-                    while True:
-                        if getSimNao(VERMELHO + 'Commitar mudanças?' + RESET ):
-                            session.commit()
-                            break
-                        else:
-                            session.rollback()
-                            break
-                    input('Aperta qualquer tecla para sair')
-                else:
-                    print('Nenhum registro encontrado')
-                    input('Aperta qualquer tecla para sair')
+                    print(AZUL+'EDICAO DE PERSONAGEM'+RESET)
+                    char_id = getValor('ID do Personagem')
+                    char = session.query(Character).filter_by(id = char_id).first()
+                    if(char):
+                        char = editCharacter(char)
+                        session.add(char)
+                        cls()
+                        print(char)
+                        while True:
+                            if getSimNao(VERMELHO + 'Commitar mudanças?' + RESET ):
+                                session.commit()
+                                break
+                            else:
+                                session.rollback()
+                                break
+                        input('Aperta qualquer tecla para sair')
+                    else:
+                        print('Nenhum registro encontrado')
+                        input('Aperta qualquer tecla para sair')
+                elif c == 2:
+                    cls()
+                    print(AZUL+'EDICAO DE ITEM'+RESET)
+                    item_id = getValor('ID do Item')
+                    item = session.query(Item).filter_by(id = item_id).first()
+                    if(item):
+                        item = editItem(item)
+                        session.add(item)
+                        cls()
+                        print(item)
+
+                        while True:
+                            if getSimNao(VERMELHO + 'Commitar mudanças?' + RESET ):
+                                session.commit()
+                                break
+                            else:
+                                session.rollback()
+                                break
+                    else:
+                        print('Nenhum registro encontrado')
+                    input(VERMELHO+'Aperta qualquer tecla para sair'+RESET)
+                elif c == 0:
+                    break
         elif c == 4:
             cls()
             print('DELETAR PERSONAGEM')

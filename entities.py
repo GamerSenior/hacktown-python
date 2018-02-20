@@ -11,7 +11,7 @@ class Item(Base):
     id = Column(Integer, primary_key = True)
     nome = Column(String(60), nullable = False)
     descricao = Column(String(250), nullable = False)
-    equipavel = Column(Integer, nullable = False)
+    equipavel = Column(Boolean, nullable = False)
     ataque = Column(Integer, nullable = False)
     defesa = Column(Integer, nullable = False)
     valor = Column(Float, nullable = False)
@@ -45,18 +45,19 @@ class Character(Base):
     ataque = Column(Integer)
     defesa = Column(Integer)
     droplist = relationship('Droplist')
-    mochila = []
+    mochila = relationship('Mochila') 
 
     def atacar(self, inimigo):
         pass
 
-    def __init__(self, nome, amigavel, vida, ataque, defesa, droplist = []):
+    def __init__(self, nome, amigavel, vida, ataque, defesa, droplist = [], mochila = []):
         self.nome = nome
         self.amigavel = amigavel
         self.vida = vida
         self.ataque = ataque
         self.defesa = defesa
         self.droplist = droplist
+        self.mochila = mochila
 
     def create_table():
         engine = create_engine('sqlite:///data.db')
@@ -68,13 +69,25 @@ class Character(Base):
             nomeItems.append(droplist.item.nome)
         return nomeItems
 
+    def getMochila(self):
+        nomeItems = []
+        for mochila in self.mochila:
+            nomeItems.append(mochila.item.nome)
+        return nomeItems
+
     def __str__(self):
         return ('Nome:'+ AZUL +' {}'+ RESET +'\nAmigavel: '+ AZUL +'{}'+ RESET +'\
                 \nVida: '+ AZUL +'{}'+ RESET +'\n' + 'Ataque: '+ AZUL +'{}'+ RESET +'\
                 \nDefesa: '+ AZUL +'{}'+ RESET +'\nDroplist: '+ AZUL +'{}'+ RESET +'\
                 \nEquipamentos: '+ AZUL +'{}'+ RESET +'').format(
             self.nome, self.amigavel, self.vida, self.ataque, self.defesa,
-            self.getDroplist(), self.mochila)
+            self.getDroplist(), self.getMochila())
+
+class Mochila(Base):
+    __tablename__ = 'backpack'
+    item_id = Column(Integer, ForeignKey('item.id'), primary_key = True)
+    character_id = Column(Integer, ForeignKey('character.id'), primary_key = True)
+    item = relationship('Item')
 
 class Droplist(Base):
     __tablename__ = 'droplist'
