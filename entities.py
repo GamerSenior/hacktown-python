@@ -46,11 +46,18 @@ class Character(Base):
     defesa = Column(Integer)
     droplist = relationship('Droplist')
     mochila = relationship('Mochila') 
+    equipado = relationship('Equipados')
 
     def atacar(self, inimigo):
-        pass
+        print(self.nome + ' se prepara para atacar '+inimigo.nome)
+        if self.getTotalAtaque() > inimigo.getTotalDefesa():
+            danoCausado = self.getTotalAtaque() - inimigo.getTotalDefesa()
+            print(self.nome + ' defere um golpe e causa ' + danoCausado + 'de dano')
+            inimigo.vida -= danoCausado
+        else:
+            print(self.nome + ' tenta atacar porem falha miseravelmente')
 
-    def __init__(self, nome, amigavel, vida, ataque, defesa, droplist = [], mochila = []):
+    def __init__(self, nome, amigavel, vida, ataque, defesa, droplist = [], mochila = [], equipado = []):
         self.nome = nome
         self.amigavel = amigavel
         self.vida = vida
@@ -58,8 +65,29 @@ class Character(Base):
         self.defesa = defesa
         self.droplist = droplist
         self.mochila = mochila
+        self.equipado = equipado
 
-    def create_table():
+    def getTotalAtaque(self):
+        danoTotal = 0
+        for equipado in self.equipado:
+            danoTotal += equipado.item.ataque
+        danoTotal += self.ataque
+        return danoTotal
+
+    def getTotalDefesa(self):
+        defesaTotal = 0
+        for equipado in self.equipado:
+            defesaTotal += equipado.item.defesa
+        defesaTotal += self.defesa
+        return defesaTotal
+
+    def equiparItem(self, item):
+        if item.equipavel == True:
+            itemEquipado = Equipado()
+            itemEquipado.item = item;
+            self.equipado.append(itemEquipado)
+
+    def create_table(self):
         engine = create_engine('sqlite:///data.db')
         Base.metadata.create_all(engine)
 
@@ -82,6 +110,12 @@ class Character(Base):
                 \nEquipamentos: '+ AZUL +'{}'+ RESET +'').format(
             self.nome, self.amigavel, self.vida, self.ataque, self.defesa,
             self.getDroplist(), self.getMochila())
+
+class Equipado(Base):
+    __tablename__ = 'equipado'
+    item_id = Column(Integer, ForeignKey('item.id'), primary_key = True)
+    character_id = Column(Integer, ForeignKey('character.id'), primary_key = True)
+    item = relationship('Item')
 
 class Mochila(Base):
     __tablename__ = 'backpack'

@@ -1,4 +1,3 @@
-import sqlite3
 import time
 from pudb import set_trace
 from sqlalchemy import create_engine
